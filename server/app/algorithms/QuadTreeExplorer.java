@@ -456,10 +456,16 @@ public class QuadTreeExplorer implements IAlgorithm {
         int zoom = query.zoom;
         int resX = query.resX;
         int resY = query.resY;
+        int sampleSize = query.sampleSize;
 
         MyTimer.startTimer();
-        System.out.println("[QuadTree Explorer] is answering query Q = { range: [" + lng0 + ", " + lat0 + "] ~ [" +
-                lng1 + ", " + lat1 + "], resolution: [" + resX + " x " + resY + "], zoom: " + zoom + " } ...");
+        System.out.println("[QuadTree Explorer] is answering query: \n" +
+                "Q = { \n" +
+                "    range: [" + lng0 + ", " + lat0 + "] ~ [" + lng1 + ", " + lat1 + "], \n" +
+                "    resolution: [" + resX + " x " + resY + "], \n" +
+                "    zoom: " + zoom + ",\n " +
+                "    sampleSize: " + sampleSize + " \n" +
+                " }");
 
         double iX0 = lngX(lng0);
         double iY0 = latY(lat0);
@@ -490,6 +496,11 @@ public class QuadTreeExplorer implements IAlgorithm {
         System.out.println("[QuadTree Explorer] tree search got " + points.size() + " data points.");
         System.out.println("[QuadTree Explorer] tree search time: " + treeTime + " seconds.");
 
+        // if sampleSize > 0 (sampleSize given by the user), shuffle the result list of points
+        if (sampleSize > 0) {
+            Collections.shuffle(points);
+        }
+
         // build binary result message
         MyTimer.startTimer();
         BinaryMessageBuilder messageBuilder = new BinaryMessageBuilder();
@@ -500,6 +511,9 @@ public class QuadTreeExplorer implements IAlgorithm {
             lat = yLat(point.getY());
             messageBuilder.add(lng, lat);
             resultSize ++;
+            // if sampleSize > 0 (sampleSize given by the user), return the top sampleSize points as result
+            if (sampleSize > 0 && resultSize >= sampleSize)
+                break;
         }
         MyTimer.stopTimer();
         double buildBinaryTime = MyTimer.durationSeconds();
