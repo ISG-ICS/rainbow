@@ -1,0 +1,8 @@
+numpy
+requests
+websocket
+websocket-client
+scikit-image
+opencv-python
+matplotlib
+scipy
